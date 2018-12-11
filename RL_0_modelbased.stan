@@ -54,16 +54,18 @@ functions{
         lprob[i] = log(1-probf1);
         cf_1 = -1;
       }
-      if(action[i] == 1){
-        ca_1 = 1;
-      }
-      else if(action[i] == 2){
-        ca_1 = -1;
-      }
       // Update Q values for fractals and actions
       Qf[1,chosen[i]] = Qf[1,chosen[i]]+lr_f*(reward[i]-Qf[1,chosen[i]]);
       Qf[1,unchosen[i]] = 1-Qf[1,chosen[i]];
       Qa[1,action[i]] = Qa[1,action[i]]+lr_a*(reward[i]-Qa[1,action[i]]);
+      if(action[i] == 1){
+        ca_1 = 1;
+        Qa[1,2] = 1-Qa[1,action[i]];
+      }
+      else if(action[i] == 2){
+        ca_1 = -1;
+        Qa[1,1] = 1-Qa[1,action[i]];
+      }
     }
     return sum(lprob);
 	}
@@ -138,7 +140,6 @@ model{
   C_a~normal(ca_mu,ca_sig);
   D_f~normal(df_mu,df_sig);
   D_a~normal(da_mu,da_sig);
-  
   // LL function to maximize (specified above in the "functions" section)
   chosen~RL(unchosen, action, sub, trial, f1_side, f2_side, reward, N, alpha_f, beta_f, alpha_a, beta_a, C_f, C_a, D_f, D_a);
 }
